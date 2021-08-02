@@ -2,8 +2,6 @@
 Petit bot pour compter les sports
 lien à envoyer pour l'ajouter sur le groupe :
 https://discord.com/api/oauth2/authorize?client_id=871442934954856478&permissions=67584&scope=bot
-
-# TODO : dict pour compter les votes une seule fois
 """
 from discord.ext import commands  # API discord
 
@@ -33,6 +31,8 @@ sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keyw
 ]
 
 compteur = [0] * len(sports)  # 1 index => "sport" & nombre
+votes = {}  # Dict qui stocke les derniers choix.
+# format : { int-id utilisateur : int-index du sport correspondant}
 
 keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, tout en lowercase
     ("hand", "handball"),
@@ -98,12 +98,6 @@ def get_index(message : str) -> int:
     return -1  # par défaut
 
 
-def incremente(index : int):
-    # Incrémente le compteur correspondant. Prend en compte le cas -1
-    if index != -1 and index < len(compteur):
-        compteur[index] += 1
-
-
 def message_resultats() -> str:
     # renvoie le message à afficher
     message = 'Résultats :\n'
@@ -114,7 +108,6 @@ def message_resultats() -> str:
     return message
 
 id_2_sports = 871134587550593044  # Id de la conversation 2 sports
-# id_2_sports = 871445114772410431  # id test  principal
 
 # Teste si le bot est opérationnel
 @bot.event
@@ -147,27 +140,55 @@ async def presenter(contexte):
 async def compte_sports(contexte):
 
     if contexte.channel.id == id_2_sports:
-        global compteur
+        global compteur, votes
         
         # Tous les messages envoyés
         messages = await contexte.channel.history().flatten()  # pas oublier le flatten!!
 
         # Reset du compteur
         compteur = [0] * len(sports)
+        # Reset des votes:
+        votes = {}
 
+        # On parcourt tous les messages de l'historique et on stocke pour chaque utilisateur l'id
+        # du sport de son 1er choix. Ca écrase automatiquement les choix antérieurs au dernier
+
+        # REMARQUE : ça parcourt la discussion en remontant. Pour chaque message, on vérifie que l'id
+        # de l'utilisateur ne présente pas déjà un sport.
         for message in messages:
 
-            msg = get_msg(message.content, prefixes)
+            if message.author.id not in votes:  # C'est le 1er vote de l'utilisateur
 
-            if msg is not None:  # '1)' trouvé, renvoie le message qui suit
+                msg = get_msg(message.content, prefixes)
 
-                incremente(get_index(msg))
+                if msg is not None:  # '1)' ou '1/' trouvé, renvoie le message qui suit
 
+                    index = get_index(msg)
+
+                    if index != -1 and index < len(sports):
+                        votes[message.author.id] = index  # On stocke le sport avec l'id du 'votant'
+
+
+        # Tout a été stocké dans votes, 1 par personne, seulement le dernier compte
+        # On parcourt maintenant le dict pour incrémenter le compteur
+        for id, choix in votes.items():
+
+            compteur[choix] += 1  # 1 vote de + sur le sport correspondant
+        
+        # Enfin : affichage des résultats
         await contexte.channel.send(message_resultats())
 
     else:
-        await contexte.channel.send("On n'est pas dans deux-sports-preferes...")
+        await contexte.channel.send("On n'est pas dans 2-sports-preferes...")
     
+
+@bot.command(name="dernières_nouvelles")  # Pour annoncer les dernières updates du bot
+async def annonce(contexte):
+
+    message = "Je sais maintenant faire la différence quand une personne donne plusieurs fois ses choix, "
+    message+= "et je ne prend en compte que le dernier vote ! Youpi."
+
+    await contexte.channel.send(message)
 
 # lancement du bot
 bot.run(os.getenv("TOKEN"))  # Token secret du bot
