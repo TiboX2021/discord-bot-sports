@@ -136,7 +136,7 @@ async def on_ready():
 
 @bot.command(name="bonjour")  # commande !bonjour
 async def dit_bonjour(contexte):
-    await contexte.channel.send("Salut")
+    await contexte.channel.send(f"Salut, {contexte.author.name}")
 
 @bot.command(name="bot,_présente_toi")
 async def presenter(contexte):
