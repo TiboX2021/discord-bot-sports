@@ -28,6 +28,7 @@ sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keyw
     "Boxe",
     "Judo",
     "Escrime",
+    "Tennis",
 ]
 
 compteur = [0] * len(sports)  # 1 index => "sport" & nombre
@@ -47,6 +48,7 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
     ("boxe"),
     ("judo"),
     ("escrime"),
+    ("tennis"),
 ]
 
 prefixes = ['1)', '1/']
@@ -126,9 +128,8 @@ async def presenter(contexte):
 
         message = "Coucou,\nje suis un bot et je compte les 1ers choix des gens pour le sport.\n"
         message += "Merci de mettre '1)' puis votre premier choix, sinon j'arrive pas à lire.\n"
-        message += "Evitez de voter deux fois, je suis trop con pour faire la différence.\n"
         message += "Je ne fonctionne que quand <@870249964561903617> me connecte\n"
-        message += "Commandes : '!bot,_présente_toi', '!bonjour', '!compte'"
+        message += "Commandes : '!bot,_présente_toi', '!dernières_nouvelles', '!bonjour', '!compte'"
     else:
         message = "Coucou,\n"
         message += "Je suis un bot qui participe à deux-sports-preferes"
