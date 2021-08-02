@@ -3,12 +3,10 @@ Petit bot pour compter les sports
 lien à envoyer pour l'ajouter sur le groupe :
 https://discord.com/api/oauth2/authorize?client_id=871442934954856478&permissions=67584&scope=bot
 
+# TODO : dict pour compter les votes une seule fois
 """
-
-
 from discord.ext import commands  # API discord
 
-from emoji.core import demojize
 
 # Récupération du token du bot dans mon fichier config
 from dotenv import load_dotenv
@@ -19,7 +17,7 @@ load_dotenv(dotenv_path='config')
 bot = commands.Bot(command_prefix="!")  # Commandes s'activent avec ! en début de message
 
 
-sports = [  # l'index est utilisé comme un index
+sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keywords
     "Handball",
     "Natation",
     "Badminton",
@@ -53,48 +51,38 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
 
 prefixes = ['1)', '1/']
 
-def is_letter(char):
-    """renvoie True si c'est une lettre, False si c'est un nombre, un emoji, etc
-    ça permet de délimiter le sport précisé après 1)
-    """
-
-    if char == ' ' or char == '\n' or char == ':':  # début emoji, fin ligne, etc...
-        return False
-    else:
-        return True
-
 
 def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui suit le préfixe
     
     index = -1
     i = 0
-    while i < len(prefixes) and index == -1:
+    while i < len(prefixes) and index == -1:  # On parcourt tous les préfixes ('1)', '1/') et on s'arrête au 1er trouvé
         index = message.find(prefixes[i])
         i += 1
 
-
-    if index == -1:
+    if index == -1:  # Pas de préfixe trouvé : on ignore
         return None
     else:
 
-        message = demojize(message)  # Faciliter le repérage des emoji, qui commencent par ':'
-
         index += len(prefixes[i - 1])  # On passe le préfixe, ça donne l'index du 1er mot après
-        while index < len(message) and not is_letter(message[index]):
+
+        while index < len(message) and not message[index].isalpha():  # tant qu'il n'y a pas de lettre (' ', emoji, ...)
             index += 1  # On passe les espaces après le préfixe
 
-        # On a l'index du début du mot
+        # On a l'index du début du mot : index
         if index < len(message):
-            index2 = index  # On parcourt le reste jusqu'à trouver le 1er espace
+            index2 = index  # On parcourt le reste jusqu'à trouver la fin du mot
 
-            while index2 < len(message) and is_letter(message[index2]):
+            while index2 < len(message) and message[index2].isalpha():  # tant qu'il y a des lettres : on parcourt le mot
                 index2 += 1
 
+            # On a l'index de la fin du mot : index2
+
             if index2 < len(message):
-                # Le message va de index à index2 -1
+                # Le message va de index à index2 -1 (ex : "xxxx 1) sport blablabla")
                 return message[index : index2]
             else:
-                # Le message va jusqu'à la fin
+                # Le message va jusqu'à la fin (ex : "xxxxx 1) sport")
                 return message[index : len(message)]
         else:
             return None  # message en "xxxx1)    " sans rien
