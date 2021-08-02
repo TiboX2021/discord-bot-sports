@@ -29,6 +29,9 @@ sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keyw
     "Judo",
     "Escrime",
     "Tennis",
+    "Rugby",
+    "Equitation",
+    "Crossfit"
 ]
 
 compteur = [0] * len(sports)  # 1 index => "sport" & nombre
@@ -49,6 +52,9 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
     ("judo"),
     ("escrime"),
     ("tennis"),
+    ("rugby"),
+    ("équitation", "equitation"),
+    ("crossfit")
 ]
 
 prefixes = ['1)', '1/']
@@ -186,8 +192,7 @@ async def compte_sports(contexte):
 @bot.command(name="dernières_nouvelles")  # Pour annoncer les dernières updates du bot
 async def annonce(contexte):
 
-    message = "Je sais maintenant faire la différence quand une personne donne plusieurs fois ses choix, "
-    message+= "et je ne prend en compte que le dernier vote ! Youpi."
+    message = "Nouveaux sports : Tennis, Rugby, Equitation, Crossfit"
 
     await contexte.channel.send(message)
 
