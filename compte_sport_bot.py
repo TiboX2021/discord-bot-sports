@@ -5,6 +5,8 @@ https://discord.com/api/oauth2/authorize?client_id=871442934954856478&permission
 """
 from discord.ext import commands  # API discord
 
+import json  # Charger l'historique des votes
+from datetime import datetime  # Comparer les dates du plus récent message chargé
 
 # Récupération du token du bot dans mon fichier config
 from dotenv import load_dotenv
@@ -14,6 +16,8 @@ load_dotenv(dotenv_path='config')
 
 bot = commands.Bot(command_prefix="!")  # Commandes s'activent avec ! en début de message
 
+
+## Données des sports à identifier
 
 sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keywords
     "Handball",
@@ -33,10 +37,6 @@ sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keyw
     "Equitation",
     "Crossfit"
 ]
-
-compteur = [0] * len(sports)  # 1 index => "sport" & nombre
-votes = {}  # Dict qui stocke les derniers choix.
-# format : { int-id utilisateur : int-index du sport correspondant}
 
 keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, tout en lowercase
     ("hand", "handball"),
@@ -60,7 +60,65 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
 prefixes = ['1)', '1/', '1.']
 
 
-def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui suit le préfixe
+# Variables pour compter / vérifier les id
+compteur = [0] * len(sports)
+votes = {}  # Dict qui stocke les derniers choix.
+# format : { int-id utilisateur : int-index du sport correspondant}
+
+## Stockage des anciens résultats pour éviter d'avoir à relire tous les anciens messages
+
+date = ''  # date du dernier message lu : on ne remonte pas plus loin
+# type de l'objet : datetime.datetime
+date_format = '%d/%m/%Y %H:%M:%S'  # année/mois/jour heure:minute:seconde
+# Remarque : minuscule => 2 chiffre. maj => 4 chiffres (pour l'année, notamment)
+
+"""
+Format du dict à enregistrer en format JSON :
+
+{
+    'date' : format date discord du dernier message,
+
+    'history' : {  # Ici, les id et leurs votes
+        id1 : vote1,
+        id2 : vote2,
+    }
+}
+
+"""
+
+def load_data():
+    """Charge les données du fichier json"""
+
+    global votes  # On charge tout à nouveau dans le dict votes
+    global date  # dernière date où un message a été pris en compte
+
+    # Chargement des données
+    file = open("data.json")  # ouverture du fichier
+    file_data = json.loads(file.read())  # données -> file_data : dict
+
+    file.close()  # Pas nécessaire à la fin d'une fonction, parce que l'objet file sera supprimé
+
+    date = datetime.strptime(file_data['date'], date_format)  # On charge cette dernière date
+    votes = file_data['history']  # On charge le dict : data[id] = id_vote
+
+
+def write_data():
+    """Ecrit les dernières données dans le fichier"""
+    file_data = {}
+    file_data['date'] = date.strftime(date_format)  # datetime.datetime -> str
+    file_data['history'] = votes
+
+    file = open("data.json", "w")  # "w" : écrase toutes les données écrites
+
+    # Ecriture des données dans le fichier, en gardant le truc lisible
+    file.write(json.dumps(file_data, sort_keys=True, indent=4))
+
+    file.close()  # idem
+
+
+## Fonctions
+
+def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui suit le préfixe (découpe le mot)
     
     index = -1
     i = 0
@@ -117,6 +175,8 @@ def message_resultats() -> str:
 
 id_2_sports = 871134587550593044  # Id de la conversation 2 sports
 
+## Commandes du bot
+
 # Teste si le bot est opérationnel
 @bot.event
 async def on_ready():
@@ -147,33 +207,43 @@ async def presenter(contexte):
 async def compte_sports(contexte):
 
     if contexte.channel.id == id_2_sports:
-        global compteur, votes
+        global compteur, votes, date  # global : toutes les variables qu'on va modifier
         
         # Tous les messages envoyés
         messages = await contexte.channel.history().flatten()  # pas oublier le flatten!!
 
         # Reset du compteur
         compteur = [0] * len(sports)
-        # Reset des votes:
-        votes = {}
+        # Reset des votes, en chargeant les données du fichier data.json
+        load_data()  # variables rechargées : votes, date
 
         # On parcourt tous les messages de l'historique et on stocke pour chaque utilisateur l'id
         # du sport de son 1er choix. Ca écrase automatiquement les choix antérieurs au dernier
 
         # REMARQUE : ça parcourt la discussion en remontant. Pour chaque message, on vérifie que l'id
         # de l'utilisateur ne présente pas déjà un sport.
-        for message in messages:
+        
+        i = 0
 
-            if message.author.id not in votes:  # C'est le 1er vote de l'utilisateur
+        print("commande compte reçue")  # DEBUG
 
-                msg = get_msg(message.content, prefixes)
+        # Tant qu'il reste des messages et qu'on n'est pas arrivé au plus récent chargé:
+        # pour un objet datetime.datetime, supérieur (>) veut dire plus récent
+        while i < len(messages) and messages[i].created_at > date:
+
+            print("encore un message!!")
+            
+            if messages[i].author.id not in votes:  # C'est le 1er vote de l'utilisateur
+
+                msg = get_msg(messages[i].content, prefixes)
 
                 if msg is not None:  # '1)' ou '1/' trouvé, renvoie le message qui suit
 
                     index = get_index(msg)
 
                     if index != -1 and index < len(sports):
-                        votes[message.author.id] = index  # On stocke le sport avec l'id du 'votant'
+                        votes[messages[i].author.id] = index  # On stocke le sport avec l'id du 'votant'
+            i += 1  # passage au message suivant
 
 
         # Tout a été stocké dans votes, 1 par personne, seulement le dernier compte
@@ -181,8 +251,12 @@ async def compte_sports(contexte):
         for id, choix in votes.items():
 
             compteur[choix] += 1  # 1 vote de + sur le sport correspondant
+
+        # Avant de finir : on récupère la dernière date lue (celle du 1er message, le + récent)
+        date = messages[0].created_at  # objet datetime.datetime (python)
         
-        # Enfin : affichage des résultats
+        # Enfin : affichage des résultats, et réécriture dans le fichier
+        write_data()
         await contexte.channel.send(message_resultats())
 
     else:
@@ -192,7 +266,8 @@ async def compte_sports(contexte):
 @bot.command(name="dernières_nouvelles")  # Pour annoncer les dernières updates du bot
 async def annonce(contexte):
 
-    message = "Je reconnais aussi '.1' pour le 1er sport"
+    message = "Je retiens les votes une fois qu'on m'a appelé, je n'ai plus besoin de relire tout"
+    message+= " l'historique des messages à chaque fois ! Youpi."
 
     await contexte.channel.send(message)
 

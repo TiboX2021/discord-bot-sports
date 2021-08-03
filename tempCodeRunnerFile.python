@@ -1,0 +1,12 @@
+from datetime import datetime
+
+
+date_str=  "15/11/2001 00:00:00"
+date_format = '%d/%m/%Y %H:%M:%S'
+
+date = datetime.strptime(date_str, date_format)
+print(date)
+
+#date = datetime(2001, 11, 15, 00, 00, 00)
+
+#print(date.strftime(date_format))
