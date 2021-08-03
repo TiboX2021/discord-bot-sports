@@ -176,6 +176,9 @@ def message_resultats() -> str:
 
     message += f"\nTOTAL : {total}"
 
+    message += "\n\nAvant de lancer des commandes, vérifiez que je suis bien connecté dans la liste des membres "
+    message += "(et je suis pas souvent connecté...)"
+
     return message
 
 id_2_sports = 871134587550593044  # Id de la conversation 2 sports
