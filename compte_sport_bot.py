@@ -57,7 +57,7 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
     ("crossfit")
 ]
 
-prefixes = ['1)', '1/', '.1']
+prefixes = ['1)', '1/', '1.']
 
 
 def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui suit le préfixe
