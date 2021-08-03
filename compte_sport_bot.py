@@ -57,7 +57,7 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
     ("crossfit")
 ]
 
-prefixes = ['1)', '1/']
+prefixes = ['1)', '1/', '.1']
 
 
 def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui suit le préfixe
@@ -192,7 +192,7 @@ async def compte_sports(contexte):
 @bot.command(name="dernières_nouvelles")  # Pour annoncer les dernières updates du bot
 async def annonce(contexte):
 
-    message = "Nouveaux sports : Tennis, Rugby, Equitation, Crossfit"
+    message = "Je reconnais aussi '.1' pour le 1er sport"
 
     await contexte.channel.send(message)
 
