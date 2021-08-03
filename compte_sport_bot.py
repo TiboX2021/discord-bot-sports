@@ -84,6 +84,10 @@ Format du dict à enregistrer en format JSON :
     }
 }
 
+REMARQUE : à cause des décalages horaires et de l'heure par défaut de discord,
+l'heure des commentaires (qui viennent de discord) affiche 2h de moins que l'heure en France.
+C'est sûrement dû au fait que discord stocke l'heure absolue de ses commentaires réglée sur l'horaire
+américain, et que le logiciel discord traduit ça en heure locale lorsqu'on l'utilise
 """
 
 def load_data():
@@ -176,7 +180,7 @@ def message_resultats() -> str:
 
     message += f"\nTOTAL : {total}"
 
-    message += "\n\nAvant de lancer des commandes, vérifiez que je suis bien connecté dans la liste des membres "
+    message += "\n\nAvant de lancer des commandes, vérifie que je suis bien connecté dans la liste des membres "
     message += "(et je suis pas souvent connecté...)"
 
     return message
