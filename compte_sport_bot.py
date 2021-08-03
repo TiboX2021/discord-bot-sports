@@ -172,7 +172,7 @@ def message_resultats() -> str:
     message = 'Résultats :\n\n'
 
     for i in range(len(sports)):
-        message += f"{sports[i]} : {compteur[i]} ({round(compteur[i]/total, 1)}%)\n"
+        message += f"{sports[i]} : {compteur[i]}    ({round(100*compteur[i]/total, 1)}%)\n"
 
     message += f"\nTOTAL : {total}"
 
