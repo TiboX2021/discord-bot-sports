@@ -165,11 +165,16 @@ def get_index(message : str) -> int:
 
 
 def message_resultats() -> str:
-    # renvoie le message à afficher
-    message = 'Résultats :\n'
+    """Renvoie le message à afficher"""
+    # D'abord : total des votants
+    total = sum(compteur)
+
+    message = 'Résultats :\n\n'
 
     for i in range(len(sports)):
-        message += f"{sports[i]} : {compteur[i]}\n"
+        message += f"{sports[i]} : {compteur[i]} ({round(compteur[i]/total, 1)}%)\n"
+
+    message += f"\nTOTAL : {total}"
 
     return message
 
@@ -266,8 +271,7 @@ async def compte_sports(contexte):
 @bot.command(name="dernières_nouvelles")  # Pour annoncer les dernières updates du bot
 async def annonce(contexte):
 
-    message = "Je retiens les votes une fois qu'on m'a appelé, je n'ai plus besoin de relire tout"
-    message+= " l'historique des messages à chaque fois ! Youpi."
+    message = "Ajout des pourcentages (idée de <@508374618420019211>)"
 
     await contexte.channel.send(message)
 
