@@ -228,8 +228,12 @@ async def compte_sports(contexte):
         # Tant qu'il reste des messages et qu'on n'est pas arrivé au plus récent chargé:
         # pour un objet datetime.datetime, supérieur (>) veut dire plus récent
         while i < len(messages) and messages[i].created_at > date:
+
+            id_auteur = str(messages[i].author.id)  # JSON a transformé les clés en str
+            # faute d'autre solution pour régler ce problème pour l'instant, je convertit les
+            # clés en str pour matcher les types de données
             
-            if messages[i].author.id not in votes:  # C'est le 1er vote de l'utilisateur
+            if id_auteur not in votes:  # C'est le 1er vote de l'utilisateur
 
                 msg = get_msg(messages[i].content, prefixes)
 
@@ -238,7 +242,7 @@ async def compte_sports(contexte):
                     index = get_index(msg)
 
                     if index != -1 and index < len(sports):
-                        votes[messages[i].author.id] = index  # On stocke le sport avec l'id du 'votant'
+                        votes[id_auteur] = index  # On stocke le sport avec l'id du 'votant'
             i += 1  # passage au message suivant
 
 
