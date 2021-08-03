@@ -225,13 +225,9 @@ async def compte_sports(contexte):
         
         i = 0
 
-        print("commande compte reçue")  # DEBUG
-
         # Tant qu'il reste des messages et qu'on n'est pas arrivé au plus récent chargé:
         # pour un objet datetime.datetime, supérieur (>) veut dire plus récent
         while i < len(messages) and messages[i].created_at > date:
-
-            print("encore un message!!")
             
             if messages[i].author.id not in votes:  # C'est le 1er vote de l'utilisateur
 
