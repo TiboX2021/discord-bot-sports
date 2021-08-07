@@ -2,6 +2,9 @@
 Petit bot pour compter les sports
 lien à envoyer pour l'ajouter sur le groupe :
 https://discord.com/api/oauth2/authorize?client_id=871442934954856478&permissions=67584&scope=bot
+
+TODO : problème : le bot ne prend pas en compte le choix le plus récent. Si j'enlève la vérif, 
+ça va normalement bien prendre en compte le dernier choix, sauf si il change d'avis durant les nouveaux messages
 """
 from discord.ext import commands  # API discord
 
@@ -187,6 +190,16 @@ def message_resultats() -> str:
 
 id_2_sports = 871134587550593044  # Id de la conversation 2 sports
 
+
+def merge(main_dict : dict, additional_data : dict):
+    """
+    Ajoute les entrées de 'additional_data' à 'main_dict'
+    main_dict est directement modifié
+    """
+    for id, choix in additional_data.items():
+        main_dict[id] = choix
+
+
 ## Commandes du bot
 
 # Teste si le bot est opérationnel
@@ -224,17 +237,27 @@ async def compte_sports(contexte):
         # Tous les messages envoyés
         messages = await contexte.channel.history().flatten()  # pas oublier le flatten!!
 
-        # Reset du compteur
-        compteur = [0] * len(sports)
-        # Reset des votes, en chargeant les données du fichier data.json
+        # Chargement de l'historique des votes déjà analysés
         load_data()  # variables rechargées : votes, date
 
-        # On parcourt tous les messages de l'historique et on stocke pour chaque utilisateur l'id
-        # du sport de son 1er choix. Ca écrase automatiquement les choix antérieurs au dernier
+        """
+        Fonctionnement du truc :
+        1) on charge toutes les données déjà processées qui sont stockées dans data.json
+        2) on process tous les commentaires depuis le plus récent au dernier chargé.
+        ATTENTION : parmi ces commentaires, on ne garde pour chaque personne que le choix le
+        plus récent. Comme les commentaires sont stockés du plus récent au plus vieux, il faut pour chaque
+        commentaire identifier l'id de l'auteur, et vérifier s'il n'a pas déjà voté PARMI LES COMMENTAIRES
+        PAS ENCORE ANALYSES.
 
-        # REMARQUE : ça parcourt la discussion en remontant. Pour chaque message, on vérifie que l'id
-        # de l'utilisateur ne présente pas déjà un sport.
-        
+        3) ensuite, on dispose alors :
+        -> des votes déjà connus (historique)
+        -> des votes les plus récents, qui viennent d'être analysés
+
+        Donc on 'merge' les 2, en faisant en sorte que les votes les plus récents écrasent les votes anciens
+        s'ils existent
+        """
+
+        nouveaux_votes = {}
         i = 0
 
         # Tant qu'il reste des messages et qu'on n'est pas arrivé au plus récent chargé:
@@ -245,7 +268,7 @@ async def compte_sports(contexte):
             # faute d'autre solution pour régler ce problème pour l'instant, je convertit les
             # clés en str pour matcher les types de données
             
-            if id_auteur not in votes:  # C'est le 1er vote de l'utilisateur
+            if id_auteur not in nouveaux_votes:  # C'est le 1er vote de l'utilisateur
 
                 msg = get_msg(messages[i].content, prefixes)
 
@@ -254,12 +277,22 @@ async def compte_sports(contexte):
                     index = get_index(msg)
 
                     if index != -1 and index < len(sports):
-                        votes[id_auteur] = index  # On stocke le sport avec l'id du 'votant'
+                        nouveaux_votes[id_auteur] = index  # On stocke le sport avec l'id du 'votant'
             i += 1  # passage au message suivant
 
 
-        # Tout a été stocké dans votes, 1 par personne, seulement le dernier compte
-        # On parcourt maintenant le dict pour incrémenter le compteur
+        # Maintenant :
+        # 'votes' contient les anciens votes
+        # 'nouveaux_votes' contient les nouveaux votes, à merge avec les anciens
+
+        # On mélange tout ça :
+
+        merge(votes, nouveaux_votes)
+
+        # Puis il n'y a plus qu'à compter les votes par sport
+        # Reset du compteur
+        compteur = [0] * len(sports)
+        
         for id, choix in votes.items():
 
             compteur[choix] += 1  # 1 vote de + sur le sport correspondant
