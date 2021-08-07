@@ -180,7 +180,7 @@ def message_resultats() -> str:
 
     message += f"\nTOTAL : {total}"
 
-    message += "\n\nAvant de lancer des commandes, vérifie que je suis bien connecté dans la liste des membres "
+    message += "\n\nTant que je ne suis pas connecté, pas la peine d'essayer de lancer des !commandes "
     message += "(et je suis pas souvent connecté...)"
 
     return message
@@ -273,6 +273,12 @@ async def compte_sports(contexte):
 
     else:
         await contexte.channel.send("On n'est pas dans 2-sports-preferes...")
+
+    
+@bot.command(name="aurevoir")
+async def ditAurevoir(contexte):
+
+    await contexte.channel.send(f"Au revoir, {contexte.author.name}")
     
 
 @bot.command(name="dernières_nouvelles")  # Pour annoncer les dernières updates du bot
