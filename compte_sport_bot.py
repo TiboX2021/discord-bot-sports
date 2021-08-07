@@ -123,9 +123,13 @@ def write_data():
     file.close()  # idem
 
 
-## Fonctions
+## Fonctions utiles
 
-def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui suit le préfixe (découpe le mot)
+def get_msg(message : str, prefixes : str) -> str:
+    """
+    Découpe le mot qui suit le préfixe, et le renvoie
+    (il ne reste qu'à le comparer avec la liste de keywords)
+    """
     
     index = -1
     i = 0
@@ -162,7 +166,9 @@ def get_msg(message : str, prefixes : str) -> str:  # Renvoie le message qui sui
 
 
 def get_index(message : str) -> int:
-    # Renvoie l'index du message s'il est dans la liste de keywords. Sinon, -1
+    """
+    Renvoie l'index du message (mot découpé) s'il est dans la liste de keywords. Sinon, -1
+    """
     message = message.lower()  # tout en minuscule pour ne pas s'emmerder
 
     for i in range(len(keywords)):
@@ -172,7 +178,7 @@ def get_index(message : str) -> int:
 
 
 def message_resultats() -> str:
-    """Renvoie le message à afficher"""
+    """Renvoie le message à afficher (d'après l'ensemble des votes dans 'votes' : dict"""
     # D'abord : total des votants
     total = sum(compteur)
 
