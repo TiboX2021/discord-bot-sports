@@ -2,9 +2,6 @@
 Petit bot pour compter les sports
 lien à envoyer pour l'ajouter sur le groupe :
 https://discord.com/api/oauth2/authorize?client_id=871442934954856478&permissions=67584&scope=bot
-
-TODO : problème : le bot ne prend pas en compte le choix le plus récent. Si j'enlève la vérif, 
-ça va normalement bien prendre en compte le dernier choix, sauf si il change d'avis durant les nouveaux messages
 """
 from discord.ext import commands  # API discord
 
