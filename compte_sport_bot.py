@@ -57,7 +57,7 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
 	("crossfit")
 ]
 
-prefixes = ['1)', '1/', '1.']
+prefixes = ['1)', '1/', '1.', '1-']
 
 
 # Variables pour compter / vérifier les id
