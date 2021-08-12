@@ -288,6 +288,7 @@ class Compteur:
 			# 1) Chargement des anciens votes
 			date, anciens_votes = load_data(self.data_file)
 
+
 			# 2) Chargement des nouveaux messages, plus récents que la dernière date
 			# Si date=None, tous les messages sont lus
 			messages = await contexte.channel.history(after=date).flatten()
@@ -303,7 +304,7 @@ class Compteur:
 			"""
 
 			for message in messages:
-				
+
 				# JSON stocke les clés (ici les id) comme des str. Faute de meilleure solution, on utilise les
 				# id sous forme de str
 				id_auteur = str(message.author.id)
