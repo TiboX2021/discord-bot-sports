@@ -35,7 +35,8 @@ sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keyw
 	"Tennis",
 	"Rugby",
 	"Equitation",
-	"Crossfit"
+	"Crossfit",
+	"Ultimate (éventuellement)"
 ]
 
 keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, tout en lowercase
@@ -54,7 +55,8 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
 	("tennis"),
 	("rugby"),
 	("équitation", "equitation"),
-	("crossfit")
+	("crossfit"),
+	("ultimate")
 ]
 
 prefixes = ['1)', '1/', '1.', '1-']
