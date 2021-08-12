@@ -77,7 +77,6 @@ def write_data(filename : str, data : dict) -> None:
 	file.close()  # En pratique, inutile, car l'objet file est supprimé à la fin de la fonction
 
 
-
 def next_word(message : str, prefixes : str) -> str:
 	"""
 	Découpe le mot qui suit le préfixe, et le renvoie
@@ -262,7 +261,8 @@ class Compteur:
 		(A exécuter au sein d'une fonction marquée @bot.command)
 		Effectue un nouveau comptage, update les données, affiche le message bilan
 
-		mot-clé async nécessaire
+		mot-clé async nécessaire.
+		await Compteur.update(contexte)  # utilisation d'une fonction asynchrone
 
 		Fonctionnement :
 		1) Chargement des anciens votes (stockés sous JSON)
@@ -456,7 +456,7 @@ async def presenter(contexte):
 		message = "Coucou,\nje suis un bot et je compte les 1ers choix des gens pour le sport.\n"
 		message += "Merci de mettre '1)' puis votre premier choix, sinon j'arrive pas à lire.\n"
 		message += "Je ne fonctionne que quand <@870249964561903617> me connecte\n"
-		message += "Commandes : '!bot,_présente_toi', '!bonjour', , '!aurevoir', !compte'"
+		message += "Commandes : '!bot,_présente_toi', '!bonjour', , '!aurevoir', '!compte', '!ultimate'"
 	else:
 		message = "Coucou,\n"
 		message += "Je suis un bot qui participe à deux-sports-preferes"
