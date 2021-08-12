@@ -2,6 +2,23 @@
 Petit bot pour compter les sports
 lien à envoyer pour l'ajouter sur le groupe :
 https://discord.com/api/oauth2/authorize?client_id=871442934954856478&permissions=67584&scope=bot
+
+#TODO : mieux factoriser le code pour ajouter des fonctions de décompte indépendantes.
+Pour chaque fonction de décompte :
+- sports
+- keywords
+- fichier correspondant qui stocke les votes par id et la date du dernier vote
+
+on peut réutiliser les fonctions utiles (get_msg, merge, etc)
+il faudrait mettre en commun le code qui permet de faire la lecture dans le fichier,
+les comptages, et merge?
+
+# TODO :
+- fonction (nom_fichier, liste_keywords, discussion) : fait le merge tout seul
+- fonction (compteur, liste_sports) : fait le message à afficher
+
+Ecrire sur le papier pour voir comment organiser tout ça pour que ça soit bien réutilisable
+
 """
 from discord.ext import commands  # API discord
 
@@ -36,7 +53,6 @@ sports = [  # l'index est utilisé comme un id, commun à sports, compteur, keyw
 	"Rugby",
 	"Equitation",
 	"Crossfit",
-	"Ultimate (éventuellement)"
 ]
 
 keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, tout en lowercase
@@ -56,7 +72,6 @@ keywords = [  # On chope les keywords, et ils renvoient l'index correpsondant, t
 	("rugby"),
 	("équitation", "equitation"),
 	("crossfit"),
-	("ultimate")
 ]
 
 prefixes = ['1)', '1/', '1.', '1-']
@@ -99,7 +114,7 @@ def load_data():
 	global date  # dernière date où un message a été pris en compte
 
 	# Chargement des données
-	file = open("data.json")  # ouverture du fichier
+	file = open("sports_data.json")  # ouverture du fichier
 	file_data = json.loads(file.read())  # données -> file_data : dict
 
 	file.close()  # Pas nécessaire à la fin d'une fonction, parce que l'objet file sera supprimé
@@ -311,6 +326,15 @@ async def compte_sports(contexte):
 
 	else:
 		await contexte.channel.send("On n'est pas dans 2-sports-preferes...")
+
+@bot.command(name="ultimate")
+async def compteUltimate(contexte):
+	"""
+	Compte les gens qui voudraient bien faire ultimate.
+	même système que les autres sports, mais c'est une fonction de comptage à part
+	TODO : mieux factoriser le code
+	"""
+	pass
 
 	
 @bot.command(name="aurevoir")

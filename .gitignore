@@ -1,4 +1,3 @@
 config
-test.py
-data.json
-data copy.json
+sports_data.json
+ultimate_data.json
