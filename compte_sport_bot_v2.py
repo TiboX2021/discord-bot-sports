@@ -134,8 +134,8 @@ def keyword_index(keyword : str, keywords : List[List[str]]) -> int:
 	"""
 	keyword = keyword.lower()  # Passage en lowercase pour la comparaison avec des keywords en minuscule aussi.
 
-	for i in range(len(keywords)):
-		if keyword in keywords[i]:
+	for i, key_list in enumerate(keywords):
+		if keyword in key_list:
 			return i  # 1ère correspondance détectée est renvoyée
 	return -1  # par défaut
 
@@ -183,12 +183,12 @@ def summary_msg(values : List[str], count : List[int], display_percent : bool=Tr
 	else:
 		message = ""
 
-		for i in range(len(values)):
+		for value, number in zip(values, count):
 
-			message += f"{values[i]} : {count[i]}"  # Ajout du compte
+			message += f"{value} : {number}"  # Ajout du compte
 
 			if display_percent:
-				message += f"	({round(100*count[i]/total, 1)}%)"  # Ajout du pourcentage par rapport au total
+				message += f"   ({round(100*number/total, 1)}%)"  # Ajout du pourcentage par rapport au total
 
 			message += '\n'  # Retour à la ligne
 
@@ -406,7 +406,7 @@ compteur_sports = Compteur(
 	id_conv=int(os.getenv("DEUX_SPORTS_PREFERES")),  # Id de deux-sports-preferes (via mode développeur discord)
 	conv_name="deux-sports-preferes",
 	start_msg=results_header,
-	end_msg=warning_msg
+	end_msg=f'\n\nPour que je compte ton choix, écris "1)" puis ton 1er choix pour le sport{warning_msg}'
 )
 
 
@@ -420,7 +420,7 @@ compteur_ultimate = Compteur(
 	id_conv=int(os.getenv("DEUX_SPORTS_PREFERES")),
 	conv_name="deux-sports-preferes",
 	start_msg=msg_ultimate,
-	end_msg=warning_msg,
+	end_msg=f'Pour que je compte ton choix, écris "* ultimate"\n{warning_msg}',
 	percent=False,
 	total=False
 )
